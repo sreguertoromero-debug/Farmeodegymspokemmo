@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101513">
+  <meta name="description" content="Guía interactiva de gimnasios de PokéMMO con estrategias, progreso y calculadora de recompensas.">
+  <title>PokéMMO | Ruta de gimnasios</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101513;
+      --surface: #181f1b;
+      --surface-raised: #202923;
+      --line: #303b33;
+      --text: #f0f3ed;
+      --muted: #9da99f;
+      --red: #f0644f;
+      --gold: #efbd64;
+      --green: #8dca91;
+      --cyan: #87cbd1;
+      --font: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--text);
+      background-color: var(--bg);
+      background-image: radial-gradient(ellipse at 12% 0%, rgba(80, 119, 89, .17), transparent 34rem), linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: auto, 32px 32px, 32px 32px;
+      font-family: var(--font);
+      line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; cursor: pointer; touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .topbar { position: sticky; top: 0; z-index: 5; border-bottom: 1px solid var(--line); background: rgba(16, 21, 19, .94); backdrop-filter: blur(14px); }
+    .topbar-inner, main, footer { width: min(1200px, calc(100% - 40px)); margin-inline: auto; }
+    .topbar-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 12px; color: #141815; background: var(--red); font-size: 19px; font-weight: 900; box-shadow: 0 5px 22px rgba(240,100,79,.17); }
+    .brand-name { font-weight: 800; letter-spacing: .03em; }
+    .brand-caption { color: var(--muted); font-size: 12px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .timer { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-variant-numeric: tabular-nums; }
+    .timer-value { min-width: 62px; color: var(--gold); font-size: 13px; font-weight: 700; }
+    .icon-button, .quiet-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; background: var(--surface-raised); color: var(--muted); font-size: 12px; transition: border-color .16s, color .16s, background .16s; }
+    .icon-button:hover, .quiet-button:hover { color: var(--text); border-color: #647265; }
+    .icon-button { min-width: 34px; padding: 6px; }
+    main { padding-block: 28px 56px; }
+    .overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, .75fr); gap: 28px; align-items: end; padding: 24px 0 28px; border-bottom: 1px solid var(--line); }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--red); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .eyebrow::before { width: 18px; height: 2px; content: ""; background: currentColor; }
+    h1 { max-width: 680px; margin: 10px 0 9px; font-size: clamp(30px, 4vw, 48px); line-height: 1.08; letter-spacing: -.025em; }
+    .intro { max-width: 610px; margin: 0; color: #b7c0b8; font-size: 14px; }
+    .calculator { padding: 16px; border: 1px solid var(--line); border-top: 2px solid var(--gold); border-radius: 9px; background: rgba(24,31,27,.93); }
+    .calc-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 700; }
+    .multiplier-tag { color: var(--gold); font-size: 11px; font-weight: 600; }
+    .calc-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-block: 12px; }
+    label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; }
+    select, input[type="number"], input[type="search"], textarea { width: 100%; min-height: 38px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: #131916; color: var(--text); font-size: 12px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); text-align: center; }
+    .stat-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; }
+    .stat-value { margin-top: 2px; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .stat-value.gross { color: var(--green); }
+    .stat-value.net { color: var(--gold); }
+    .section { margin-top: 30px; }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 14px; }
+    h2 { margin: 0; font-size: 19px; line-height: 1.25; }
+    .section-note { color: var(--muted); font-size: 11px; }
+    .team-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .team-card { display: grid; grid-template-columns: 1fr 68px; gap: 8px; min-height: 158px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: linear-gradient(135deg, rgba(39,53,43,.85), rgba(24,31,27,.95) 65%); }
+    .team-card:nth-child(3n + 2) { background: linear-gradient(135deg, rgba(36,52,62,.85), rgba(24,31,27,.95) 65%); }
+    .team-card:nth-child(3n) { background: linear-gradient(135deg, rgba(61,46,39,.75), rgba(24,31,27,.95) 65%); }
+    .pokemon-role { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+    .pokemon-name { margin-top: 1px; font-size: 16px; font-weight: 800; }
+    .pokemon-ivs { color: var(--gold); font-size: 10px; }
+    .pokemon-image { width: 68px; height: 68px; align-self: start; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 5px 4px rgba(0,0,0,.4)); }
+    .pokemon-details { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; padding-top: 8px; border-top: 1px solid rgba(157,169,159,.18); color: #d3dbd4; font-size: 10px; }
+    .pokemon-details span { color: var(--muted); }
+    .moves { grid-column: 1 / -1; margin-top: 2px; color: #c2cdc4; }
+    .moves b { color: var(--muted); font-weight: 600; }
+    .filters { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 30px; padding: 12px; border-block: 1px solid var(--line); }
+    .region-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .region-button { min-height: 34px; border: 1px solid transparent; border-radius: 6px; padding: 6px 11px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 700; transition: .15s ease; }
+    .region-button:hover { background: var(--surface-raised); color: var(--text); }
+    .region-button[aria-pressed="true"] { border-color: rgba(240,100,79,.36); background: rgba(240,100,79,.12); color: #ff9584; }
+    .search-wrap { width: min(300px, 100%); }
+    .search-wrap input { min-height: 36px; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(260px, .85fr); gap: 24px; margin-top: 20px; align-items: start; }
+    .gym-title-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 0 0 12px; }
+    .gym-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .gym-list { display: grid; gap: 9px; }
+    .gym-card { padding: 13px; border: 1px solid var(--line); border-radius: 8px; background: rgba(24,31,27,.94); transition: border-color .16s, background .16s; }
+    .gym-card:hover { border-color: #536154; }
+    .gym-card.is-done { border-color: rgba(141,202,145,.48); background: rgba(36,55,40,.6); }
+    .gym-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(157,169,159,.15); }
+    .gym-name-area { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+    .complete-button { width: 24px; height: 24px; flex: 0 0 24px; display: grid; place-items: center; border: 1px solid #536154; border-radius: 5px; background: #151c17; color: transparent; font-size: 14px; }
+    .is-done .complete-button { border-color: var(--green); background: var(--green); color: #142017; }
+    .gym-name-line { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; }
+    .region-chip { color: var(--cyan); font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .gym-name { font-size: 14px; font-weight: 800; }
+    .is-done .gym-name { color: #b1bdb3; text-decoration: line-through; }
+    .gym-city { color: var(--muted); font-size: 11px; }
+    .gym-meta { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; text-align: right; }
+    .difficulty { color: #d1d6cf; font-size: 10px; white-space: nowrap; }
+    .difficulty b { color: var(--gold); }
+    .reward { color: var(--green); font-size: 13px; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .gym-detail { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.2fr); gap: 8px; padding-top: 10px; }
+    .detail-block { padding: 9px; border-radius: 6px; background: rgba(8,13,10,.35); }
+    .detail-label { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .lead-pair { margin-top: 3px; color: var(--gold); font-size: 11px; font-weight: 800; }
+    .turn-one { margin-top: 4px; color: #aab6ab; font-size: 10px; }
+    .strategy { margin: 3px 0 0; color: #d2d9d2; font-size: 11px; }
+    .sidebar { display: grid; gap: 14px; }
+    .side-panel { padding: 14px; border-block: 1px solid var(--line); }
+    .side-panel h3 { margin: 0 0 12px; font-size: 14px; }
+    .combo-list { display: grid; gap: 8px; }
+    .combo { padding: 10px; border-left: 2px solid var(--gold); background: rgba(32,41,35,.76); }
+    .combo:nth-child(2) { border-color: var(--cyan); }
+    .combo:nth-child(3) { border-color: var(--red); }
+    .combo:nth-child(4) { border-color: #81a9e3; }
+    .combo strong { color: #f1d392; font-size: 11px; }
+    .combo p { margin: 3px 0 0; color: #bcc7bd; font-size: 10px; line-height: 1.5; }
+    .notes-panel textarea { min-height: 116px; resize: vertical; font-size: 11px; }
+    .notes-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .notes-head h3 { margin-bottom: 10px; }
+    .text-button { border: 0; padding: 4px; background: none; color: var(--muted); font-size: 10px; }
+    .text-button:hover { color: var(--text); }
+    .tips { margin: 12px 0 0; padding-left: 16px; color: #aeb9af; font-size: 10px; }
+    .tips li + li { margin-top: 5px; }
+    .empty { padding: 30px 14px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); text-align: center; font-size: 12px; }
+    footer { display: flex; justify-content: space-between; gap: 18px; padding-block: 18px 26px; border-top: 1px solid var(--line); color: #879389; font-size: 10px; }
+    footer p { margin: 0; }
+    @media (max-width: 850px) {
+      .overview { grid-template-columns: 1fr; }
+      .calculator { max-width: none; }
+      .content-grid { grid-template-columns: minmax(0, 1.4fr) minmax(230px, .8fr); gap: 14px; }
+      .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters { align-items: stretch; flex-direction: column; }
+      .search-wrap { width: 100%; }
+    }
+    @media (max-width: 620px) {
+      .topbar-inner, main, footer { width: min(100% - 28px, 520px); }
+      .topbar-inner { min-height: 62px; gap: 8px; }
+      .brand-mark { width: 34px; height: 34px; flex-basis: 34px; border-radius: 10px; }
+      .brand-name { font-size: 12px; }
+      .brand-caption { font-size: 10px; }
+      .top-actions { gap: 5px; }
+      .reset-label { display: none; }
+      .timer { gap: 5px; padding: 6px; }
+      .timer-value { min-width: 54px; font-size: 11px; }
+      main { padding-top: 18px; }
+      .overview { gap: 18px; padding-top: 12px; }
+      h1 { font-size: 32px; }
+      .intro { font-size: 12px; }
+      .calc-fields { grid-template-columns: 1fr 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .team-card { min-height: 142px; }
+      .section-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .content-grid { grid-template-columns: 1fr; }
+      .sidebar { grid-row: 1; }
+      .combo-list { grid-template-columns: 1fr 1fr; }
+      .gym-top { flex-direction: column; }
+      .gym-meta { width: 100%; justify-content: space-between; text-align: left; }
+      .gym-detail { grid-template-columns: 1fr; }
+      .gym-title-row { align-items: flex-start; flex-direction: column; gap: 2px; }
+      footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">P</div>
+        <div><div class="brand-name">POKÉMMO <span style="color:var(--red)">/ GYM FARM</span></div><div class="brand-caption">Rematches · dobles · nivel 100</div></div>
+      </div>
+      <div class="top-actions">
+        <button class="quiet-button" type="button" onclick="resetGymProgress()" title="Borrar los gimnasios marcados como completados"><span aria-hidden="true">↺</span><span class="reset-label">Reiniciar rota</span></button>
+        <div class="timer" aria-label="Cronómetro">
+          <span class="timer-value" id="timer-display">00:00:00</span>
+          <button class="icon-button" id="timer-toggle" type="button" onclick="toggleTimer()" aria-label="Iniciar cronómetro" title="Iniciar cronómetro">▶</button>
+          <button class="icon-button" type="button" onclick="resetTimer()" aria-label="Reiniciar cronómetro" title="Reiniciar cronómetro">■</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="overview" aria-labelledby="page-title">
+      <div>
+        <div class="eyebrow">Guía de rematches</div>
+        <h1 id="page-title">Tu ruta de gimnasios,<br>batalla a batalla.</h1>
+        <p class="intro">Estrategias para rematches dobles de nivel 100, un registro de progreso por navegador y una calculadora para estimar tus recompensas.</p>
+      </div>
+      <section class="calculator" aria-label="Calculadora de recompensas">
+        <div class="calc-heading"><span>Calculadora de yenes</span><span class="multiplier-tag" id="calc-multiplier-tag">+50% Moneda Amuleto</span></div>
+        <div class="calc-fields">
+          <div><label for="item-modifier">Potenciador</label><select id="item-modifier" onchange="renderGyms()"><option value="1.5" data-cost="17000" data-label="+50% Moneda Amuleto">Moneda Amuleto (+50%)</option><option value="1.75" data-cost="75000" data-label="+75% Amuleto Riqueza">Amuleto Riqueza (+75%)</option><option value="2" data-cost="140000" data-label="+100% Amuleto Riqueza">Amuleto Riqueza (+100%)</option><option value="1" data-cost="0" data-label="Sin potenciador">Sin potenciador</option></select></div>
+          <div><label for="item-cost">Costo consumible ($)</label><input id="item-cost" type="number" min="0" step="1000" value="17000" oninput="calculateProfits()"></div>
+        </div>
+        <div class="stats">
+          <div><div class="stat-label">Gimnasios</div><div class="stat-value" id="stat-completed">0 / 31</div></div>
+          <div><div class="stat-label">Bruta</div><div class="stat-value gross" id="stat-gross">$0</div></div>
+          <div><div class="stat-label">Neta</div><div class="stat-value net" id="stat-net">$0</div></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="section" aria-labelledby="team-title">
+      <div class="section-heading"><h2 id="team-title">Equipo de farmeo</h2><span class="section-note">6 Pokémon · IVs 2×31 en ataque especial o ataque y velocidad</span></div>
+      <div class="team-grid" id="team-cards-container"></div>
+    </section>
+
+    <section class="filters" aria-label="Filtros de gimnasios">
+      <div class="region-list" id="region-buttons" aria-label="Filtrar por región"></div>
+      <div class="search-wrap"><label for="search-gym" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Buscar gimnasios</label><input type="search" id="search-gym" oninput="renderGyms()" placeholder="Buscar líder, ciudad o estrategia..."></div>
+    </section>
+
+    <div class="content-grid">
+      <section aria-labelledby="gyms-title">
+        <div class="gym-title-row"><h2 id="gyms-title">Ruta de gimnasios</h2><span class="gym-count" id="gym-count-label">31 gimnasios</span></div>
+        <div class="gym-list" id="gym-list-container"></div>
+      </section>
+      <aside class="sidebar">
+        <section class="side-panel" aria-labelledby="leads-title">
+          <h3 id="leads-title">Parejas lead principales</h3>
+          <div class="combo-list">
+            <div class="combo"><strong>Aerodactyl / Togekiss + Excadrill</strong><p>Aliados inmunes a Terremoto por su tipo Volador. Con otros compañeros, considera Avalancha.</p></div>
+            <div class="combo"><strong>Vanilluxe + Togekiss</strong><p>Nevada habilita Ventisca con precisión mejorada; Vozarrón completa el daño de área.</p></div>
+            <div class="combo"><strong>Typhlosion + Aerodactyl</strong><p>Día Soleado de Aerodactyl potencia Estallido de Typhlosion.</p></div>
+            <div class="combo"><strong>Blastoise + cobertura</strong><p>Salpicar hace más daño con los PS de Blastoise al máximo. Ojo: golpea a todos los demás Pokémon.</p></div>
+          </div>
+        </section>
+        <section class="side-panel notes-panel" aria-labelledby="notes-title">
+          <div class="notes-head"><h3 id="notes-title">Notas de la rota</h3><button class="text-button" type="button" onclick="clearNotes()">Borrar</button></div>
+          <textarea id="user-notes" oninput="saveNotes()" placeholder="Tiempos, objetos que reponer, recordatorios..."></textarea>
+          <ul class="tips"><li>Lleva Vuelo para moverte entre ciudades.</li><li>Comprueba los PS antes de usar Salpicar o Estallido.</li><li>Revisa la inmunidad de tus aliados antes de usar ataques de área.</li></ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer><p>Guía comunitaria de farmeo para PokéMMO. El progreso y las notas se guardan en este navegador.</p><p>Pokémon es propiedad de sus respectivos titulares.</p></footer>
+
+  <script>
+    const myTeam = [
+      { name: 'Aerodactyl', id: 142, nature: 'Firme', ivs: '2×31 · Atq / Vel', ability: 'Nerviosismo', item: 'Lupa', moves: 'Avalancha · Día Soleado · Protección · Vuelo', role: 'Apoyo de clima' },
+      { name: 'Blastoise', id: 9, nature: 'Modesta', ivs: '2×31 · At. Esp. / Vel', ability: 'Torrente', item: 'Pañuelo Elegido', moves: 'Salpicar · Surf · Hidrobomba · Escaldar', role: 'Atacante especial' },
+      { name: 'Excadrill', id: 530, nature: 'Firme', ivs: '2×31 · Atq / Vel', ability: 'Rompemoldes', item: 'Cinta Elegida', moves: 'Terremoto · Avalancha · Excavar · Fisura', role: 'Atacante físico' },
+      { name: 'Typhlosion', id: 157, nature: 'Modesta', ivs: '2×31 · At. Esp. / Vel', ability: 'Mar Llamas', item: 'Gafas Elegidas', moves: 'Estallido · Lanzallamas · Humareda · Corte', role: 'Atacante de fuego' },
+      { name: 'Togekiss', id: 468, nature: 'Modesta', ivs: '2×31 · At. Esp. / Vel', ability: 'Dicha / Afortunado', item: 'Pañuelo Elegido', moves: 'Vozarrón · Aire Afilado · Onda Certera · Truco', role: 'Atacante de cobertura' },
+      { name: 'Vanilluxe', id: 584, nature: 'Modesta', ivs: '2×31 · At. Esp. / Vel', ability: 'Nevada', item: 'Pañuelo Elegido', moves: 'Ventisca · Viento Hielo · Alboroto · Rayo Hielo', role: 'Clima de granizo' }
+    ];
+
+    const gymData = [
+      { id:'k1',region:'Kanto',name:'Brock',city:'Ciudad Plateada',baseReward:8960,difficulty:'Fácil',leadPair:'Blastoise + Vanilluxe',turn1:'Blastoise: Salpicar | Vanilluxe: Ventisca',strategy:'Salpicar de Blastoise a PS completos golpea con fuerza a los tipos Roca y Tierra. Ventisca aprovecha Nevada; cuidado con los Pokémon resistentes y el daño de área.',badgeColor:'stone' },
+      { id:'k2',region:'Kanto',name:'Misty',city:'Ciudad Celeste',baseReward:8960,difficulty:'Media',leadPair:'Vanilluxe + Togekiss',turn1:'Vanilluxe: Ventisca | Togekiss: Vozarrón',strategy:'Nevada mejora la precisión de Ventisca. Combina daño de área y ajusta la estrategia según la composición rival.',badgeColor:'blue' },
+      { id:'k3',region:'Kanto',name:'Lt. Surge',city:'Ciudad Carmín',baseReward:8960,difficulty:'Fácil',leadPair:'Excadrill + Aerodactyl',turn1:'Excadrill: Terremoto | Aerodactyl: Protección / Día Soleado',strategy:'Rompemoldes permite golpear a ciertos rivales con Levitación. Aerodactyl es inmune a Terremoto por su tipo Volador.',badgeColor:'amber' },
+      { id:'k4',region:'Kanto',name:'Erika',city:'Ciudad Azulona',baseReward:8960,difficulty:'Fácil',leadPair:'Typhlosion + Aerodactyl',turn1:'Aerodactyl: Día Soleado | Typhlosion: Estallido',strategy:'Día Soleado potencia los ataques de Fuego; Estallido hace más daño mientras Typhlosion conserva sus PS.',badgeColor:'green' },
+      { id:'k5',region:'Kanto',name:'Koga',city:'Ciudad Fucsia',baseReward:8960,difficulty:'Media',leadPair:'Typhlosion + Togekiss',turn1:'Typhlosion: Estallido | Togekiss: Vozarrón',strategy:'Usa daño de área y cambia la pareja si el equipo rival presenta amenazas para ambos atacantes.',badgeColor:'violet' },
+      { id:'k6',region:'Kanto',name:'Sabrina',city:'Ciudad Azafrán',baseReward:8960,difficulty:'Media',leadPair:'Excadrill + Togekiss',turn1:'Excadrill: Terremoto / Avalancha | Togekiss: Vozarrón',strategy:'Togekiss es inmune a Terremoto. Elige el ataque según las amenazas y las defensas del equipo rival.',badgeColor:'pink' },
+      { id:'k7',region:'Kanto',name:'Blaine',city:'Isla Canela',baseReward:9040,difficulty:'Fácil',leadPair:'Blastoise + Aerodactyl',turn1:'Blastoise: Salpicar | Aerodactyl: Avalancha',strategy:'Salpicar aprovecha la ventaja de tipo Agua; conserva los PS de Blastoise para maximizar el daño.',badgeColor:'red' },
+      { id:'k8',region:'Kanto',name:'Giovanni',city:'Ciudad Verde',baseReward:9040,difficulty:'Fácil',leadPair:'Blastoise + Vanilluxe',turn1:'Blastoise: Salpicar | Vanilluxe: Ventisca',strategy:'La combinación Agua y Hielo da cobertura contra muchos Pokémon de Tierra. Ajusta según los tipos secundarios.',badgeColor:'brown' },
+      { id:'j1',region:'Johto',name:'Pegaso (Falkner)',city:'Ciudad Malva',baseReward:8960,difficulty:'Fácil',leadPair:'Vanilluxe + Aerodactyl',turn1:'Vanilluxe: Ventisca | Aerodactyl: Avalancha',strategy:'Los ataques de Hielo y Roca son buenas opciones contra equipos de tipo Volador.',badgeColor:'sky' },
+      { id:'j2',region:'Johto',name:'Antón (Bugsy)',city:'Pueblo Azalea',baseReward:8960,difficulty:'Fácil',leadPair:'Typhlosion + Aerodactyl',turn1:'Aerodactyl: Día Soleado | Typhlosion: Estallido',strategy:'La combinación de sol y ataques de Fuego ofrece cobertura contra Pokémon de tipo Bicho.',badgeColor:'lime' },
+      { id:'j3',region:'Johto',name:'Blanca (Whitney)',city:'Ciudad Trigal',baseReward:8960,difficulty:'Media',leadPair:'Excadrill + Togekiss',turn1:'Excadrill: Terremoto | Togekiss: Vozarrón / Onda Certera',strategy:'Togekiss es inmune a Terremoto. Vigila las amenazas de tipo Normal y cambia movimientos según el combate.',badgeColor:'pink' },
+      { id:'j4',region:'Johto',name:'Morty',city:'Ciudad Iris',baseReward:8960,difficulty:'Media',leadPair:'Typhlosion + Togekiss',turn1:'Typhlosion: Humareda / Estallido | Togekiss: Vozarrón',strategy:'Ten en cuenta los ataques prioritarios y las inmunidades del rival; el daño de área puede alcanzar a tu aliado.',badgeColor:'violet' },
+      { id:'j5',region:'Johto',name:'Aníbal (Chuck)',city:'Ciudad Orquídea',baseReward:8960,difficulty:'Media',leadPair:'Togekiss + Aerodactyl',turn1:'Togekiss: Aire Afilado | Aerodactyl: Vuelo / Avalancha',strategy:'Los movimientos de tipo Volador son eficaces contra Pokémon de tipo Lucha.',badgeColor:'amber' },
+      { id:'j6',region:'Johto',name:'Yasmina (Jasmine)',city:'Ciudad Olivo',baseReward:8960,difficulty:'Fácil',leadPair:'Typhlosion + Aerodactyl',turn1:'Aerodactyl: Día Soleado | Typhlosion: Estallido',strategy:'Los ataques de Fuego son supereficaces contra el tipo Acero; considera los tipos secundarios del equipo rival.',badgeColor:'slate' },
+      { id:'j7',region:'Johto',name:'Fredo (Pryce)',city:'Pueblo Caoba',baseReward:8960,difficulty:'Fácil',leadPair:'Typhlosion + Aerodactyl',turn1:'Typhlosion: Estallido | Aerodactyl: Avalancha',strategy:'Fuego y Roca ofrecen cobertura frente a varias amenazas de Hielo.',badgeColor:'cyan' },
+      { id:'j8',region:'Johto',name:'Débora (Clair)',city:'Ciudad Endrino',baseReward:9300,difficulty:'Difícil',leadPair:'Vanilluxe + Togekiss',turn1:'Vanilluxe: Ventisca | Togekiss: Vozarrón / Aire Afilado',strategy:'Los ataques de Hielo son supereficaces contra Dragón, pero revisa los tipos secundarios antes de elegir el objetivo.',badgeColor:'indigo' },
+      { id:'h1',region:'Hoenn',name:'Petra',city:'Ciudad Férrica',baseReward:8960,difficulty:'Fácil',leadPair:'Blastoise + Vanilluxe',turn1:'Blastoise: Salpicar | Vanilluxe: Ventisca',strategy:'Los ataques de Agua son supereficaces contra los Pokémon de tipo Roca.',badgeColor:'stone' },
+      { id:'h2',region:'Hoenn',name:'Marcial',city:'Pueblo Azuliza',baseReward:8960,difficulty:'Fácil',leadPair:'Togekiss + Aerodactyl',turn1:'Togekiss: Aire Afilado | Aerodactyl: Avalancha',strategy:'Los ataques de tipo Volador ofrecen ventaja contra Pokémon de tipo Lucha.',badgeColor:'red' },
+      { id:'h3',region:'Hoenn',name:'Erico',city:'Ciudad Malvalona',baseReward:8960,difficulty:'Media',leadPair:'Excadrill + Aerodactyl',turn1:'Excadrill: Terremoto | Aerodactyl: Protección / Día Soleado',strategy:'Rompemoldes puede superar ciertas habilidades como Levitación. Aerodactyl es inmune al Terremoto de Excadrill.',badgeColor:'amber' },
+      { id:'h4',region:'Hoenn',name:'Candela',city:'Pueblo Lavacalda',baseReward:8960,difficulty:'Fácil',leadPair:'Blastoise + Aerodactyl',turn1:'Blastoise: Salpicar | Aerodactyl: Avalancha',strategy:'Los ataques de Agua son eficaces contra los Pokémon de Fuego.',badgeColor:'orange' },
+      { id:'h5',region:'Hoenn',name:'Norman',city:'Ciudad Petalia',baseReward:8960,difficulty:'Difícil',leadPair:'Excadrill + Togekiss',turn1:'Excadrill: Terremoto | Togekiss: Onda Certera',strategy:'Togekiss es inmune a Terremoto. Evalúa el objetivo y las habilidades rivales antes de usar un ataque de área.',badgeColor:'slate' },
+      { id:'h6',region:'Hoenn',name:'Alana (Winona)',city:'Ciudad Arborada',baseReward:8960,difficulty:'Fácil',leadPair:'Vanilluxe + Aerodactyl',turn1:'Vanilluxe: Ventisca | Aerodactyl: Avalancha',strategy:'Hielo y Roca ofrecen buena cobertura frente a equipos de tipo Volador.',badgeColor:'sky' },
+      { id:'h7',region:'Hoenn',name:'Vito y Leti',city:'Ciudad Algaria',baseReward:9300,difficulty:'Difícil',leadPair:'Excadrill + Togekiss',turn1:'Excadrill: Terremoto / Avalancha | Togekiss: Vozarrón',strategy:'Togekiss es inmune a Terremoto. Avalancha alcanza a varios rivales, pero comprueba el daño a tu compañero.',badgeColor:'violet' },
+      { id:'h8',region:'Hoenn',name:'Galano (Juan)',city:'Arrecípolis',baseReward:9300,difficulty:'Media',leadPair:'Vanilluxe + Togekiss',turn1:'Vanilluxe: Ventisca | Togekiss: Vozarrón',strategy:'Combina ataques de área y daño de Hielo; Kingdra puede resistirlo según su tipo secundario.',badgeColor:'blue' },
+      { id:'s1',region:'Sinnoh',name:'Roco',city:'Ciudad Pirita',baseReward:8960,difficulty:'Fácil',leadPair:'Blastoise + Vanilluxe',turn1:'Blastoise: Salpicar | Vanilluxe: Ventisca',strategy:'Agua y Hielo cubren bien los tipos Roca y Tierra. Recuerda que Salpicar también golpea al compañero.',badgeColor:'stone' },
+      { id:'s2',region:'Sinnoh',name:'Gardenia',city:'Ciudad Vetusta',baseReward:8960,difficulty:'Fácil',leadPair:'Typhlosion + Vanilluxe',turn1:'Typhlosion: Estallido | Vanilluxe: Ventisca',strategy:'Los ataques de Fuego son supereficaces contra el tipo Planta. Estallido pierde fuerza al bajar los PS.',badgeColor:'green' },
+      { id:'s3',region:'Sinnoh',name:'Brezo (Volkner)',city:'Ciudad Marina',baseReward:9300,difficulty:'Media',leadPair:'Excadrill + Aerodactyl',turn1:'Excadrill: Terremoto | Aerodactyl: Protección',strategy:'Terremoto ofrece cobertura contra Eléctrico; Aerodactyl es inmune por su tipo Volador.',badgeColor:'yellow' },
+      { id:'u1',region:'Unova',name:'Camus',city:'Ciudad Porcelana',baseReward:8960,difficulty:'Fácil',leadPair:'Typhlosion + Aerodactyl',turn1:'Aerodactyl: Día Soleado | Typhlosion: Estallido',strategy:'Los ataques de Fuego son supereficaces contra el tipo Bicho. Considera el daño recibido antes de usar Estallido.',badgeColor:'lime' },
+      { id:'u2',region:'Unova',name:'Camila',city:'Ciudad Mayólica',baseReward:8960,difficulty:'Media',leadPair:'Excadrill + Aerodactyl',turn1:'Excadrill: Terremoto / Avalancha | Aerodactyl: Avalancha',strategy:'Aerodactyl es inmune a Terremoto. Avalancha puede alcanzar a rivales Voladores que evitan Terremoto.',badgeColor:'yellow' },
+      { id:'u3',region:'Unova',name:'Yaacov (Clay)',city:'Ciudad Fayenza',baseReward:8960,difficulty:'Fácil',leadPair:'Blastoise + Vanilluxe',turn1:'Blastoise: Salpicar | Vanilluxe: Ventisca',strategy:'Agua y Hielo ofrecen cobertura contra Pokémon de Tierra; comprueba tipos secundarios y daño aliado.',badgeColor:'brown' },
+      { id:'u4',region:'Unova',name:'Gerania',city:'Ciudad Loza',baseReward:8960,difficulty:'Fácil',leadPair:'Vanilluxe + Aerodactyl',turn1:'Vanilluxe: Ventisca | Aerodactyl: Avalancha',strategy:'Hielo y Roca son buenas opciones contra equipos de tipo Volador.',badgeColor:'sky' }
+    ];
+
+    const regions = ['Todas', 'Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova'];
+    let selectedRegion = 'Todas';
+    let completedGyms = loadCompletedGyms();
+    let timerElapsed = 0;
+    let timerStartedAt = 0;
+    let timerInterval = null;
+
+    function readStorage(key, fallback) {
+      try { const value = localStorage.getItem(key); return value === null ? fallback : value; }
+      catch { return fallback; }
+    }
+    function writeStorage(key, value) {
+      try { localStorage.setItem(key, value); } catch { /* El sitio sigue funcionando si el navegador bloquea el almacenamiento. */ }
+    }
+    function loadCompletedGyms() {
+      try {
+        const value = JSON.parse(readStorage('pokemmo_gyms_completed', '[]'));
+        return Array.isArray(value) ? value.filter(id => gymData.some(gym => gym.id === id)) : [];
+      } catch { return []; }
+    }
+    function renderTeamCards() {
+      document.getElementById('team-cards-container').innerHTML = myTeam.map(pokemon => `
+        <article class="team-card">
+          <div><div class="pokemon-role">${pokemon.role}</div><div class="pokemon-name">${pokemon.name}</div><div class="pokemon-ivs">${pokemon.ivs}</div></div>
+          <img class="pokemon-image" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png" alt="${pokemon.name}" loading="lazy">
+          <div class="pokemon-details"><div><span>Naturaleza:</span> ${pokemon.nature}</div><div><span>Habilidad:</span> ${pokemon.ability}</div><div><span>Objeto:</span> ${pokemon.item}</div><div class="moves"><b>Movimientos:</b> ${pokemon.moves}</div></div>
+        </article>`).join('');
+    }
+    function renderRegionButtons() {
+      document.getElementById('region-buttons').innerHTML = regions.map(region => `<button class="region-button" type="button" aria-pressed="${selectedRegion === region}" onclick="filterByRegion('${region}')">${region}</button>`).join('');
+    }
+    function filterByRegion(region) {
+      selectedRegion = region;
+      renderRegionButtons();
+      renderGyms();
+    }
+    function renderGyms() {
+      const container = document.getElementById('gym-list-container');
+      const search = document.getElementById('search-gym').value.trim().toLocaleLowerCase('es');
+      const filtered = gymData.filter(gym => {
+        const matchesRegion = selectedRegion === 'Todas' || gym.region === selectedRegion;
+        const searchable = `${gym.name} ${gym.city} ${gym.leadPair} ${gym.turn1} ${gym.strategy} ${gym.region}`.toLocaleLowerCase('es');
+        return matchesRegion && searchable.includes(search);
+      });
+      document.getElementById('gym-count-label').textContent = `${filtered.length} de ${gymData.length} gimnasios`;
+      if (!filtered.length) {
+        container.innerHTML = '<div class="empty">No hay gimnasios que coincidan con la búsqueda.</div>';
+        calculateProfits();
+        return;
+      }
+      const multiplier = Number(document.getElementById('item-modifier').value);
+      container.innerHTML = filtered.map(gym => {
+        const isCompleted = completedGyms.includes(gym.id);
+        const reward = Math.round(gym.baseReward * multiplier);
+        return `<article class="gym-card ${isCompleted ? 'is-done' : ''}">
+          <div class="gym-top">
+            <div class="gym-name-area"><button class="complete-button" type="button" onclick="toggleGym('${gym.id}')" aria-label="${isCompleted ? 'Marcar pendiente' : 'Marcar completado'}: ${gym.name}" aria-pressed="${isCompleted}">✓</button><div><div class="gym-name-line"><span class="region-chip">${gym.region}</span><span class="gym-name">${gym.name}</span><span class="gym-city">${gym.city}</span></div></div></div>
+            <div class="gym-meta"><span class="difficulty">Dificultad: <b>${gym.difficulty}</b></span><span class="reward">+$${reward.toLocaleString('es-ES')}</span></div>
+          </div>
+          <div class="gym-detail"><div class="detail-block"><div class="detail-label">Pareja de entrada</div><div class="lead-pair">${gym.leadPair}</div><div class="turn-one">${gym.turn1}</div></div><div class="detail-block"><div class="detail-label">Estrategia · 6 contra 6</div><p class="strategy">${gym.strategy}</p></div></div>
+        </article>`;
+      }).join('');
+      calculateProfits();
+    }
+    function toggleGym(id) {
+      completedGyms = completedGyms.includes(id) ? completedGyms.filter(gymId => gymId !== id) : [...completedGyms, id];
+      writeStorage('pokemmo_gyms_completed', JSON.stringify(completedGyms));
+      renderGyms();
+    }
+    function resetGymProgress() {
+      completedGyms = [];
+      try { localStorage.removeItem('pokemmo_gyms_completed'); } catch { }
+      renderGyms();
+    }
+    function calculateProfits() {
+      const selector = document.getElementById('item-modifier');
+      const option = selector.options[selector.selectedIndex];
+      const costInput = document.getElementById('item-cost');
+      const currentCost = costInput.dataset.manual === 'true';
+      if (!currentCost) costInput.value = option.dataset.cost;
+      document.getElementById('calc-multiplier-tag').textContent = option.dataset.label;
+      const cost = Math.max(0, Number(costInput.value) || 0);
+      const gross = Math.round(gymData.filter(gym => completedGyms.includes(gym.id)).reduce((sum, gym) => sum + gym.baseReward * Number(selector.value), 0));
+      document.getElementById('stat-completed').textContent = `${completedGyms.length} / ${gymData.length}`;
+      document.getElementById('stat-gross').textContent = `$${gross.toLocaleString('es-ES')}`;
+      document.getElementById('stat-net').textContent = `$${Math.max(0, gross - (completedGyms.length ? cost : 0)).toLocaleString('es-ES')}`;
+    }
+    function onCostInput() {
+      document.getElementById('item-cost').dataset.manual = 'true';
+      calculateProfits();
+    }
+    function elapsedSeconds() {
+      return timerElapsed + (timerStartedAt ? Math.floor((Date.now() - timerStartedAt) / 1000) : 0);
+    }
+    function updateTimerDisplay() {
+      const total = elapsedSeconds();
+      const hours = String(Math.floor(total / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+      const seconds = String(total % 60).padStart(2, '0');
+      document.getElementById('timer-display').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    function toggleTimer() {
+      const button = document.getElementById('timer-toggle');
+      if (timerInterval) {
+        timerElapsed = elapsedSeconds();
+        timerStartedAt = 0;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        button.textContent = '▶';
+        button.setAttribute('aria-label', 'Iniciar cronómetro');
+        button.title = 'Iniciar cronómetro';
+      } else {
+        timerStartedAt = Date.now();
+        timerInterval = setInterval(updateTimerDisplay, 250);
+        button.textContent = 'Ⅱ';
+        button.setAttribute('aria-label', 'Pausar cronómetro');
+        button.title = 'Pausar cronómetro';
+      }
+      updateTimerDisplay();
+    }
+    function resetTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+      timerElapsed = 0;
+      timerStartedAt = 0;
+      const button = document.getElementById('timer-toggle');
+      button.textContent = '▶';
+      button.setAttribute('aria-label', 'Iniciar cronómetro');
+      button.title = 'Iniciar cronómetro';
+      updateTimerDisplay();
+    }
+    function saveNotes() { writeStorage('pokemmo_user_notes', document.getElementById('user-notes').value); }
+    function clearNotes() {
+      document.getElementById('user-notes').value = '';
+      try { localStorage.removeItem('pokemmo_user_notes'); } catch { }
+    }
+    function initialize() {
+      renderTeamCards();
+      renderRegionButtons();
+      document.getElementById('user-notes').value = readStorage('pokemmo_user_notes', '');
+      document.getElementById('item-cost').addEventListener('input', onCostInput);
+      renderGyms();
+    }
+    initialize();
+  </script>
+</body>
+</html>
